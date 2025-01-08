@@ -42,57 +42,58 @@ test_1 = RDK.Item('test_1')
 test_2 = RDK.Item('test_2')
 exit_fill = RDK.Item('exit_fill')
 
-#Teach points for dropping station
-Drop_1 = RDK.Item('Drop_1')
-pre_drop = Drop_1.Pose() * transl(100, 0, 0)
+cone_pick_positions = [pick_1, pick_2, pick_3, pick_4, pick_5, pick_6]
 
-# Set the robot speed (in mm/s for translation and deg/s for rotation)
-robot.setSpeed(500)  # Set translation speed to 500 mm/s
-robot.setSpeedJoints(150)  # Set joint speed to 150 deg/s
-
-# Picking up the cone_1 from input station
-robot.MoveJ(home)
-open_gripper_program.RunProgram()
-time.sleep(1)
-robot.MoveJ(approach_1)
-time.sleep(1)
-robot.MoveL(pick_1)  # Pick up the first cone
-time.sleep(1)
-close_gripper_program.RunProgram()
-time.sleep(2)
-attach.RunProgram()
-time.sleep(1)
-robot.MoveL(approach_1)
-time.sleep(1)
-robot.MoveL(approach_fill)
-time.sleep(1)
-
-# Lower speed for filling station
-robot.setSpeed(100)  # Set slower translation speed
-robot.setSpeedJoints(50)  # Set slower joint speed
-robot.MoveC(enter_fill, intermediate_fill)
-robot.MoveL(fill_1_go_down)
-time.sleep(1)
-robot.MoveL(fill_1_go_up)
-time.sleep(0.5)
-robot.MoveL(fill_1_go_down)
-time.sleep(1)
-robot.MoveC(approach_fill_2, intermediate_fill_2)
-robot.MoveL(fill_2_go_down)
-fill_2_go_up = fill_2_go_down.Pose() * transl(25,0,0) 
-robot.MoveL(fill_2_go_up)
-time.sleep(1)
-robot.MoveL(fill_2_go_down)
-time.sleep(1)
-robot.MoveL(test_1)
-robot.MoveL(test_2)
-robot.MoveL(exit_fill)
-
-# Restore original speed settings
-robot.setSpeed(500)  # Restore translation speed
-robot.setSpeedJoints(150)  # Restore joint speed
-# Dropping station
-robot.MoveJ(pre_drop)
-robot.MoveL(Drop_1)
-detach.RunProgram()
-robot.MoveJ(home)
+# Loop through each cone position
+for i, pick_position in enumerate(cone_pick_positions):
+    # Move to home position
+    robot.MoveJ(home)
+    open_gripper_program.RunProgram()
+    time.sleep(1)
+    
+    # Move to the approach position and then pick up the cone
+    robot.MoveJ(approach_1)
+    time.sleep(1)
+    robot.MoveJ(pick_position)
+    time.sleep(1)
+    close_gripper_program.RunProgram()
+    time.sleep(2)
+    attach.RunProgram()
+    time.sleep(1)
+    
+    # Move to the filling station
+    robot.MoveJ(approach_1)
+    time.sleep(1)
+    robot.MoveJ(approach_fill)
+    time.sleep(1)
+    
+    # Lower speed for filling station
+    robot.setSpeed(100)  # Set slower translation speed
+    robot.setSpeedJoints(50)  # Set slower joint speed
+    
+    # Perform filling operations
+    robot.MoveC(enter_fill, intermediate_fill)
+    robot.MoveL(fill_1_go_down)
+    time.sleep(1)
+    robot.MoveL(fill_1_go_up)
+    time.sleep(0.5)
+    robot.MoveL(fill_1_go_down)
+    time.sleep(1)
+    robot.MoveC(approach_fill_2, intermediate_fill_2)
+    robot.MoveL(fill_2_go_down)
+    fill_2_go_up = fill_2_go_down.Pose() * transl(25,0,0) 
+    robot.MoveL(fill_2_go_up)
+    time.sleep(1)
+    robot.MoveL(fill_2_go_down)
+    time.sleep(1)
+    robot.MoveL(test_1)
+    robot.MoveL(test_2)
+    robot.MoveL(exit_fill)
+        
+    # Restore original speed settings
+    robot.setSpeed(500)  # Restore translation speed
+    robot.setSpeedJoints(150)  # Restore joint speed
+    
+    # Drop the cone at the dropping station
+    detach.RunProgram()
+    robot.MoveJ(home)
