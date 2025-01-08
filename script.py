@@ -8,7 +8,7 @@ robot = RDK.Item('Epson VT6')
 open_gripper_program = RDK.Item('open_gripper', ITEM_TYPE_PROGRAM)  # Opening the gripper
 close_gripper_program = RDK.Item('close_gripper', ITEM_TYPE_PROGRAM)  # Closing the gripper
 attach = RDK.Item('attach', ITEM_TYPE_PROGRAM)  # Attaching to the gripper
-detach = RDK.Item('detach', ITEM_TYPE_PROGRAM) #Detaching from the gripper
+detach = RDK.Item('detach', ITEM_TYPE_PROGRAM)  # Detaching from the gripper
 
 # Teach points defined for home and picking up first cone from input station
 home = RDK.Item('home')
@@ -42,19 +42,36 @@ test_1 = RDK.Item('test_1')
 test_2 = RDK.Item('test_2')
 exit_fill = RDK.Item('exit_fill')
 
+# Teach points for dropping station
+approach_drop_1 = RDK.Item('approach_drop')
+drop_1 = RDK.Item('drop_1')
+approach_drop_2 = drop_1.Pose()*transl(120,77,140)
+drop_2 = drop_1.Pose()*transl(0,77,140)
+approach_drop_3 = drop_1.Pose()*transl(120,227,140)
+drop_3 = drop_1.Pose()*transl(0,227,140)
+approach_drop_4 = drop_1.Pose()*transl(120,300,15)
+drop_4 = drop_1.Pose()*transl(0,300,15)
+drop_5 = RDK.Item('drop_5')
+approach_drop_5 = drop_5.Pose()*transl(120,0,0)
+approach_drop_6 = drop_5.Pose()*transl(120,-150,-5)
+drop_6 = drop_5.Pose()*transl(0,-150,-5)
+
 cone_pick_positions = [pick_1, pick_2, pick_3, pick_4, pick_5, pick_6]
+approach_pick_positions = [approach_1, approach_2, approach_3, approach_4, approach_5, approach_6]
+drop_positions = [drop_1, drop_2, drop_3, drop_4, drop_6, drop_5]
+approach_drop_positions = [approach_drop_1, approach_drop_2, approach_drop_3, approach_drop_4, approach_drop_6, approach_drop_5]
 
 # Loop through each cone position
-for i, pick_position in enumerate(cone_pick_positions):
+for i in range(6):
     # Move to home position
     robot.MoveJ(home)
     open_gripper_program.RunProgram()
     time.sleep(1)
     
     # Move to the approach position and then pick up the cone
-    robot.MoveJ(approach_1)
+    robot.MoveJ(approach_pick_positions[i])
     time.sleep(1)
-    robot.MoveJ(pick_position)
+    robot.MoveJ(cone_pick_positions[i])
     time.sleep(1)
     close_gripper_program.RunProgram()
     time.sleep(2)
@@ -62,7 +79,7 @@ for i, pick_position in enumerate(cone_pick_positions):
     time.sleep(1)
     
     # Move to the filling station
-    robot.MoveJ(approach_1)
+    robot.MoveJ(approach_pick_positions[i])
     time.sleep(1)
     robot.MoveJ(approach_fill)
     time.sleep(1)
@@ -95,5 +112,8 @@ for i, pick_position in enumerate(cone_pick_positions):
     robot.setSpeedJoints(150)  # Restore joint speed
     
     # Drop the cone at the dropping station
+    robot.MoveJ(approach_drop_positions[i])
+    robot.MoveJ(drop_positions[i])
     detach.RunProgram()
+    time.sleep(1)
     robot.MoveJ(home)
